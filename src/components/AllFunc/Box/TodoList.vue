@@ -4,6 +4,7 @@
     <!-- 输入区 -->
     <div class="todo__input">
       <input
+        ref="todoInputRef"
         class="input"
         type="text"
         :placeholder="t('todos.inputPlaceholder')"
@@ -63,7 +64,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { nextTick, ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { NScrollbar } from "naive-ui";
 import { storeToRefs } from "pinia";
@@ -76,6 +77,7 @@ const { t } = useI18n({ useScope: "global" });
 
 // 新待办输入
 const newTodoText = ref("");
+const todoInputRef = ref(null);
 
 // 拖拽状态
 const dragIndex = ref(null);
@@ -101,6 +103,13 @@ const addTodo = () => {
   });
   newTodoText.value = "";
 };
+
+defineExpose({
+  focusTodoInput: async () => {
+    await nextTick();
+    todoInputRef.value?.focus();
+  },
+});
 
 // 切换完成状态
 const toggleTodo = (id) => {

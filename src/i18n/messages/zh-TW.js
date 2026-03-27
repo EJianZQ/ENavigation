@@ -69,9 +69,13 @@ export default {
         title: "打開功能盒子",
         description: "Ctrl + B / Cmd + B 可快速打開或關閉捷徑、便籤與待辦所在的功能盒子",
       },
+      command: {
+        title: "打開命令面板",
+        description: "Ctrl + Shift + P / Cmd + Shift + P 可快速打開命令面板，直接搜尋並執行站內操作",
+      },
       escape: {
         title: "返回首頁",
-        description: "Esc 可關閉目前引導，也能退出設定面板、功能盒子或搜尋狀態",
+        description: "Esc 可關閉目前引導，也能退出命令面板、設定面板、功能盒子或搜尋狀態",
       },
       enter: {
         title: "確認操作",
@@ -80,6 +84,95 @@ export default {
       navigate: {
         title: "聯想切換",
         description: "↑ / ↓ 可在搜尋建議列表中上下切換目前高亮項",
+      },
+    },
+  },
+  commandPalette: {
+    placeholder: "輸入命令、設定或功能名稱...",
+    escBadge: "Esc",
+    emptyTitle: "沒有找到符合的命令",
+    emptyDescription: "試試搜尋「搜尋」「主題」「便籤」「英文」等關鍵詞",
+    footerHint: "↑ / ↓ 選擇，Enter 執行，Esc 關閉",
+    groups: {
+      navigation: "導覽",
+      create: "新增",
+      language: "語言",
+      appearance: "外觀",
+    },
+    commands: {
+      openSearch: {
+        title: "打開搜尋",
+        keywords: ["搜尋", "查找", "輸入", "search"],
+      },
+      openSettings: {
+        title: "打開設定",
+        keywords: ["設定", "偏好", "配置", "settings"],
+      },
+      openToolbox: {
+        title: "打開功能盒子",
+        keywords: ["盒子", "捷徑", "便籤", "待辦", "toolbox"],
+      },
+      goHome: {
+        title: "返回首頁",
+        keywords: ["首頁", "返回", "關閉目前介面", "home"],
+      },
+      createShortcut: {
+        title: "新增捷徑",
+        keywords: ["添加捷徑", "網站", "連結", "shortcut"],
+      },
+      createNote: {
+        title: "新增便籤",
+        keywords: ["添加便籤", "筆記", "note"],
+      },
+      createTodo: {
+        title: "新增待辦",
+        keywords: ["添加待辦", "任務", "todo"],
+      },
+      languageZhCN: {
+        title: "切換到简体中文",
+        keywords: ["中文", "簡體", "language", "zh-cn"],
+      },
+      languageZhTW: {
+        title: "切換到繁體中文",
+        keywords: ["繁體", "正體", "language", "zh-tw"],
+      },
+      languageEnUS: {
+        title: "切換到 English",
+        keywords: ["英文", "英語", "english", "en-us"],
+      },
+      themeLight: {
+        title: "切換到淺色模式",
+        keywords: ["淺色", "亮色", "主題", "light"],
+      },
+      themeDark: {
+        title: "切換到深色模式",
+        keywords: ["深色", "暗色", "主題", "dark"],
+      },
+      enableAutoNight: {
+        title: "啟用夜間自動暗色",
+        keywords: ["自動暗色", "夜間模式", "深色", "auto night"],
+      },
+      disableAutoNight: {
+        title: "關閉夜間自動暗色",
+        keywords: ["自動暗色", "夜間模式", "關閉", "auto night"],
+      },
+      wallpaper: {
+        local: {
+          title: "切換桌布為本地預設",
+          keywords: ["桌布", "本地", "預設", "background"],
+        },
+        bing: {
+          title: "切換桌布為每日必應",
+          keywords: ["桌布", "必應", "每日", "background"],
+        },
+        landscape: {
+          title: "切換桌布為隨機風景",
+          keywords: ["桌布", "風景", "隨機", "background"],
+        },
+        anime: {
+          title: "切換桌布為隨機動漫",
+          keywords: ["桌布", "動漫", "二次元", "background"],
+        },
       },
     },
   },
@@ -128,12 +221,12 @@ export default {
       blurTip: "調整桌布高斯模糊程度",
       restoreTitle: "桌布恢復",
       restoreContent: "確認恢復預設桌布？若目前為自訂桌布，你的自訂桌布將遺失！",
-      restoredMessage: "已恢復為預設桌布，重新整理後生效",
-      switchedMessage: "已切換為{name}，重新整理後生效",
+      restoredMessage: "已恢復為預設桌布",
+      switchedMessage: "已切換為{name}",
       customTitle: "自訂桌布",
       customUrlLabel: "自訂桌布連結",
       customUrlPlaceholder: "請輸入自訂桌布連結",
-      customEnabled: "已切換為自訂桌布，重新整理後生效",
+      customEnabled: "已切換為自訂桌布",
       customInvalid: "請輸入正確的網址",
       customButton: "自訂",
       customButtonEnabled: "已啟用自訂",

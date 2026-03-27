@@ -14,7 +14,7 @@
         <p>{{ t("guide.subtitle") }}</p>
       </div>
 
-      <n-scrollbar class="guide-scroll">
+      <div class="guide-scroll">
         <div class="guide-grid">
           <section class="guide-section">
             <div class="guide-list">
@@ -28,7 +28,7 @@
             </div>
           </section>
         </div>
-      </n-scrollbar>
+      </div>
 
       <div class="guide-footer">
         <span class="guide-hint">{{ t("guide.escHint") }}</span>
@@ -43,7 +43,7 @@
 <script setup>
 import { computed, nextTick, onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
-import { NButton, NScrollbar } from "naive-ui";
+import { NButton } from "naive-ui";
 
 defineEmits(["dismiss"]);
 
@@ -65,6 +65,11 @@ const hotkeyItems = computed(() => [
     combo: "Ctrl + B / Cmd + B",
     title: t("guide.hotkeys.box.title"),
     description: t("guide.hotkeys.box.description"),
+  },
+  {
+    combo: "Ctrl + Shift + P / Cmd + Shift + P",
+    title: t("guide.hotkeys.command.title"),
+    description: t("guide.hotkeys.command.description"),
   },
   {
     combo: "Esc",
@@ -150,6 +155,16 @@ onMounted(() => {
 .guide-scroll {
   flex: 1 1 auto;
   min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
+  }
 }
 
 .guide-grid {

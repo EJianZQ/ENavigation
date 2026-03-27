@@ -17,7 +17,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from "vue";
+import { ref, onMounted, onBeforeUnmount, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { statusStore, setStore } from "@/stores";
 
@@ -85,6 +85,13 @@ const imgLoadError = () => {
 onMounted(() => {
   setBgUrl();
 });
+
+watch(
+  () => [set.backgroundType, set.backgroundCustom],
+  () => {
+    setBgUrl();
+  },
+);
 
 onBeforeUnmount(() => {
   clearTimeout(imgTimeout.value);

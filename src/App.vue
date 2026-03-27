@@ -16,9 +16,15 @@
       >
         <DateTime />
         <SearchInp @contextmenu.stop />
-        <AllFunc @contextmenu.stop />
+        <AllFunc
+          v-if="status.siteStatus === 'box' || status.siteStatus === 'set'"
+          @contextmenu.stop
+        />
         <Transition name="fade">
           <FirstVisitGuide v-if="status.showHotkeyGuide" @dismiss="dismissHotkeyGuide" />
+        </Transition>
+        <Transition name="fade">
+          <CommandPalette v-if="status.siteStatus === 'command'" />
         </Transition>
         <Footer />
         <!-- 设置快捷入口 -->
@@ -36,7 +42,11 @@
         <Transition name="fade">
           <div
             class="all-controls"
-            v-show="status.siteStatus !== 'focus' && status.siteStatus !== 'normal'"
+            v-show="
+              status.siteStatus !== 'focus' &&
+              status.siteStatus !== 'normal' &&
+              status.siteStatus !== 'command'
+            "
           >
             <div
               class="change-status"
@@ -86,6 +96,7 @@ import DateTime from "@/components/DateTime.vue";
 import SearchInp from "@/components/SearchInput/SearchInp.vue";
 import AllFunc from "@/components/AllFunc/AllFunc.vue";
 import FirstVisitGuide from "@/components/FirstVisitGuide.vue";
+import CommandPalette from "@/components/CommandPalette.vue";
 import Footer from "@/components/Footer.vue";
 
 const set = setStore();
@@ -106,6 +117,27 @@ const dismissHotkeyGuide = () => {
   status.setHasSeenHotkeyGuide(true);
   status.setShowHotkeyGuide(false);
   showWelcomeMessage();
+};
+
+const focusSearchInput = () => {
+  nextTick(() => {
+    document.getElementById("main-input")?.focus();
+  });
+};
+
+const restoreAfterCommandPalette = (nextStatus) => {
+  if (nextStatus === "focus") {
+    focusSearchInput();
+  }
+};
+
+const toggleCommandPalette = () => {
+  if (status.siteStatus === "command") {
+    const nextStatus = status.closeCommandPalette();
+    restoreAfterCommandPalette(nextStatus);
+    return;
+  }
+  status.openCommandPalette();
 };
 
 // 自动同步（防抖 3 秒）
@@ -133,7 +165,7 @@ watch(syncableData, () => {
 // 鼠标右键
 const mainContextmenu = (event) => {
   event.preventDefault();
-  if (status.showHotkeyGuide) return;
+  if (status.showHotkeyGuide || status.siteStatus === "command") return;
   status.setSiteStatus("box");
 };
 
@@ -151,7 +183,7 @@ const loadComplete = () => {
 
 // 全局键盘事件
 const mainPressKeyboard = (event) => {
-  if (status.showHotkeyGuide) return;
+  if (status.showHotkeyGuide || status.siteStatus === "command") return;
   const keyCode = event.keyCode;
   // 回车
   if (keyCode === 13) {
@@ -168,6 +200,20 @@ const globalKeyboard = (event) => {
     if (event.key === "Escape") {
       event.preventDefault();
       dismissHotkeyGuide();
+    }
+    return;
+  }
+  // Ctrl+Shift+P / Cmd+Shift+P
+  if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() === "p") {
+    event.preventDefault();
+    toggleCommandPalette();
+    return;
+  }
+  if (status.siteStatus === "command") {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      const nextStatus = status.closeCommandPalette();
+      restoreAfterCommandPalette(nextStatus);
     }
     return;
   }

@@ -248,6 +248,10 @@ const openEditor = (note) => {
   editorShow.value = true;
 };
 
+defineExpose({
+  openCreateNote: () => openEditor(),
+});
+
 // 保存并关闭
 const saveAndClose = () => {
   const { id, title, content, pinned } = editorData.value;

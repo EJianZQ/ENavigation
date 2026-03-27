@@ -207,6 +207,11 @@ const inputAnimationEnd = () => {
 
 // 键盘事件
 const pressKeyboard = (event) => {
+  if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() === "p") {
+    event.preventDefault();
+    status.openCommandPalette();
+    return;
+  }
   // Esc / Ctrl+K / Cmd+K — 退出搜索
   if (
     event.key === "Escape" ||

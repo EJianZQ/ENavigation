@@ -70,9 +70,13 @@ export default {
         title: "打开功能盒子",
         description: "Ctrl + B / Cmd + B 可快速打开或关闭捷径、便签和待办所在的功能盒子",
       },
+      command: {
+        title: "打开命令面板",
+        description: "Ctrl + Shift + P / Cmd + Shift + P 可快速打开命令面板，直接搜索并执行站内操作",
+      },
       escape: {
         title: "返回首页",
-        description: "Esc 可关闭当前引导，也能退出设置面板、功能盒子或搜索状态",
+        description: "Esc 可关闭当前引导，也能退出命令面板、设置面板、功能盒子或搜索状态",
       },
       enter: {
         title: "确认操作",
@@ -81,6 +85,95 @@ export default {
       navigate: {
         title: "联想切换",
         description: "↑ / ↓ 可在搜索建议列表中上下切换当前高亮项",
+      },
+    },
+  },
+  commandPalette: {
+    placeholder: "输入命令、设置或功能名称...",
+    escBadge: "Esc",
+    emptyTitle: "没有找到匹配的命令",
+    emptyDescription: "试试搜索“搜索”“主题”“便签”“英文”等关键词",
+    footerHint: "↑ / ↓ 选择，Enter 执行，Esc 关闭",
+    groups: {
+      navigation: "导航",
+      create: "新建",
+      language: "语言",
+      appearance: "外观",
+    },
+    commands: {
+      openSearch: {
+        title: "打开搜索",
+        keywords: ["搜索", "查找", "输入", "search"],
+      },
+      openSettings: {
+        title: "打开设置",
+        keywords: ["设置", "偏好", "配置", "settings"],
+      },
+      openToolbox: {
+        title: "打开功能盒子",
+        keywords: ["盒子", "捷径", "便签", "待办", "toolbox"],
+      },
+      goHome: {
+        title: "返回首页",
+        keywords: ["首页", "返回", "关闭当前界面", "home"],
+      },
+      createShortcut: {
+        title: "新建捷径",
+        keywords: ["添加捷径", "网站", "链接", "shortcut"],
+      },
+      createNote: {
+        title: "新建便签",
+        keywords: ["添加便签", "笔记", "note"],
+      },
+      createTodo: {
+        title: "新建待办",
+        keywords: ["添加待办", "任务", "todo"],
+      },
+      languageZhCN: {
+        title: "切换到简体中文",
+        keywords: ["中文", "简体", "language", "zh-cn"],
+      },
+      languageZhTW: {
+        title: "切换到繁體中文",
+        keywords: ["繁体", "繁體", "language", "zh-tw"],
+      },
+      languageEnUS: {
+        title: "切换到 English",
+        keywords: ["英文", "英语", "english", "en-us"],
+      },
+      themeLight: {
+        title: "切换到浅色模式",
+        keywords: ["浅色", "亮色", "主题", "light"],
+      },
+      themeDark: {
+        title: "切换到深色模式",
+        keywords: ["深色", "暗色", "主题", "dark"],
+      },
+      enableAutoNight: {
+        title: "启用夜间自动暗色",
+        keywords: ["自动暗色", "夜间模式", "深色", "auto night"],
+      },
+      disableAutoNight: {
+        title: "关闭夜间自动暗色",
+        keywords: ["自动暗色", "夜间模式", "关闭", "auto night"],
+      },
+      wallpaper: {
+        local: {
+          title: "切换壁纸为本地默认",
+          keywords: ["壁纸", "本地", "默认", "background"],
+        },
+        bing: {
+          title: "切换壁纸为每日必应",
+          keywords: ["壁纸", "必应", "每日", "background"],
+        },
+        landscape: {
+          title: "切换壁纸为随机风景",
+          keywords: ["壁纸", "风景", "随机", "background"],
+        },
+        anime: {
+          title: "切换壁纸为随机动漫",
+          keywords: ["壁纸", "动漫", "二次元", "background"],
+        },
       },
     },
   },
@@ -129,12 +222,12 @@ export default {
       blurTip: "调整壁纸高斯模糊的程度",
       restoreTitle: "壁纸恢复",
       restoreContent: "确认恢复默认壁纸？若当前为自定义壁纸，你的自定义壁纸将丢失！",
-      restoredMessage: "已恢复为默认壁纸，刷新后生效",
-      switchedMessage: "已切换为{name}，刷新后生效",
+      restoredMessage: "已恢复为默认壁纸",
+      switchedMessage: "已切换为{name}",
       customTitle: "自定义壁纸",
       customUrlLabel: "自定义壁纸链接",
       customUrlPlaceholder: "请输入自定义壁纸链接",
-      customEnabled: "已切换为自定义壁纸，刷新后生效",
+      customEnabled: "已切换为自定义壁纸",
       customInvalid: "请输入正确的网址",
       customButton: "自定义",
       customButtonEnabled: "已开启自定义",

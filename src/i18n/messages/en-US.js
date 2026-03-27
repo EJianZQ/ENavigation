@@ -70,9 +70,13 @@ export default {
         title: "Open the toolbox",
         description: "Press Ctrl + B / Cmd + B to quickly open or close the panel for shortcuts, notes, and todos",
       },
+      command: {
+        title: "Open the command palette",
+        description: "Press Ctrl + Shift + P / Cmd + Shift + P to open the command palette and run site actions directly",
+      },
       escape: {
         title: "Return to home",
-        description: "Esc closes this guide and also exits settings, the function box, or search mode",
+        description: "Esc closes this guide and also exits the command palette, settings, the toolbox, or search mode",
       },
       enter: {
         title: "Confirm actions",
@@ -81,6 +85,95 @@ export default {
       navigate: {
         title: "Navigate suggestions",
         description: "Use ↑ / ↓ to move through the current search suggestions list",
+      },
+    },
+  },
+  commandPalette: {
+    placeholder: "Type a command, setting, or feature name...",
+    escBadge: "Esc",
+    emptyTitle: "No matching commands found",
+    emptyDescription: "Try keywords like search, theme, note, or English",
+    footerHint: "Use ↑ / ↓ to choose, Enter to run, Esc to close",
+    groups: {
+      navigation: "Navigation",
+      create: "Create",
+      language: "Language",
+      appearance: "Appearance",
+    },
+    commands: {
+      openSearch: {
+        title: "Open search",
+        keywords: ["search", "find", "query"],
+      },
+      openSettings: {
+        title: "Open settings",
+        keywords: ["settings", "preferences", "config"],
+      },
+      openToolbox: {
+        title: "Open toolbox",
+        keywords: ["toolbox", "shortcuts", "notes", "todos"],
+      },
+      goHome: {
+        title: "Return to home",
+        keywords: ["home", "close panel", "back"],
+      },
+      createShortcut: {
+        title: "Create shortcut",
+        keywords: ["shortcut", "link", "website"],
+      },
+      createNote: {
+        title: "Create note",
+        keywords: ["note", "memo", "write"],
+      },
+      createTodo: {
+        title: "Create todo",
+        keywords: ["todo", "task", "add task"],
+      },
+      languageZhCN: {
+        title: "Switch to Simplified Chinese",
+        keywords: ["language", "simplified chinese", "zh-cn"],
+      },
+      languageZhTW: {
+        title: "Switch to Traditional Chinese",
+        keywords: ["language", "traditional chinese", "zh-tw"],
+      },
+      languageEnUS: {
+        title: "Switch to English",
+        keywords: ["language", "english", "en-us"],
+      },
+      themeLight: {
+        title: "Switch to light mode",
+        keywords: ["light", "theme", "appearance"],
+      },
+      themeDark: {
+        title: "Switch to dark mode",
+        keywords: ["dark", "theme", "appearance"],
+      },
+      enableAutoNight: {
+        title: "Enable auto night mode",
+        keywords: ["auto night", "night mode", "dark"],
+      },
+      disableAutoNight: {
+        title: "Disable auto night mode",
+        keywords: ["auto night", "night mode", "disable"],
+      },
+      wallpaper: {
+        local: {
+          title: "Switch wallpaper to local default",
+          keywords: ["wallpaper", "local", "default", "background"],
+        },
+        bing: {
+          title: "Switch wallpaper to Bing daily",
+          keywords: ["wallpaper", "bing", "daily", "background"],
+        },
+        landscape: {
+          title: "Switch wallpaper to random landscape",
+          keywords: ["wallpaper", "landscape", "random", "background"],
+        },
+        anime: {
+          title: "Switch wallpaper to random anime",
+          keywords: ["wallpaper", "anime", "random", "background"],
+        },
       },
     },
   },
@@ -130,12 +223,12 @@ export default {
       restoreTitle: "Restore wallpaper",
       restoreContent:
         "Restore the default wallpaper? Your custom wallpaper URL will be cleared if one is currently in use.",
-      restoredMessage: "Restored to the default wallpaper. Refresh to apply.",
-      switchedMessage: "Switched to {name}. Refresh to apply.",
+      restoredMessage: "Restored to the default wallpaper.",
+      switchedMessage: "Switched to {name}.",
       customTitle: "Custom wallpaper",
       customUrlLabel: "Custom wallpaper URL",
       customUrlPlaceholder: "Enter a custom wallpaper URL",
-      customEnabled: "Custom wallpaper enabled. Refresh to apply.",
+      customEnabled: "Custom wallpaper enabled.",
       customInvalid: "Please enter a valid URL",
       customButton: "Custom",
       customButtonEnabled: "Custom enabled",

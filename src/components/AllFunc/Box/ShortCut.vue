@@ -315,6 +315,10 @@ const addShortcutModalOpen = () => {
   addShortcutModalShow.value = true;
 };
 
+defineExpose({
+  openCreateShortcut: addShortcutModalOpen,
+});
+
 // 添加或编辑捷径
 const addOrEditShortcuts = () => {
   addShortcutRef.value?.validate((errors) => {
