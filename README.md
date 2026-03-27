@@ -21,7 +21,7 @@
 ## ✨ 功能
 - 🔎 多搜索引擎切换，支持自定义搜索引擎。搜索建议展示来源切换以及搜索历史
 
-- 🔗 快捷方式管理，支持新增、编辑、删除与排序。根据站点 URL 自动显示图标
+- 🔗 快捷方式管理，支持分组、置顶分组、组内排序、跨组拖拽，以及根据站点 URL 自动显示图标
 - ✅ 待办事项管理
 - 📝 碎碎念便签管理
 - 🖼️ 自定义壁纸、[必应壁纸](https://api.dujin.org/bing/1920.php)、[随机风景壁纸](https://picsum.photos/1920/1080?random=${Date.now()})与[随机二次元壁纸](https://www.loliapi.com/acg/pc/)切换
@@ -52,7 +52,7 @@
 
 - `src/stores/setData.js`：全站设置默认值
 - `src/stores/siteData.js`：业务数据默认值
-- `src/assets/defaultShortCut.js`：默认快捷方式
+- `src/assets/defaultShortCut.js`：默认快捷方式，首次会展示 `影视 / AI / 工具` 三个示例分组
 - `src/assets/defaultEngine.js`：默认搜索引擎预设
 
 ### 3. 云同步配置

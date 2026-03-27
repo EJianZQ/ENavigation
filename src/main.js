@@ -5,11 +5,14 @@ import piniaPluginPersistedstate from "pinia-plugin-persistedstate";
 // IconFont
 import SvgIcon from "@/components/SvgIcon.vue";
 import { i18n, normalizeLocale, resolveInitialLocale, setAppLocale } from "@/i18n";
-import { setStore } from "@/stores";
+import { setStore, siteStore } from "@/stores";
+import { normalizeShortcutData } from "@/utils/shortcutData";
 // 主组件
 import App from "@/App.vue";
 // 全局样式
 import "@/style/global.scss";
+
+const SHORTCUT_DATA_BACKUP_KEY = "shortcutDataBackup";
 
 // 根组件
 const app = createApp(App);
@@ -25,6 +28,40 @@ const settings = setStore(pinia);
 const initialLocale = normalizeLocale(settings.language || resolveInitialLocale());
 if (settings.language !== initialLocale) {
   settings.language = initialLocale;
+}
+
+const site = siteStore(pinia);
+const rawShortcutData = site.shortcutData;
+
+try {
+  const normalizedShortcutData = normalizeShortcutData(rawShortcutData, {
+    locale: initialLocale,
+    strict: true,
+  });
+  if (JSON.stringify(rawShortcutData) !== JSON.stringify(normalizedShortcutData)) {
+    site.shortcutData = normalizedShortcutData;
+  }
+} catch (error) {
+  try {
+    window.localStorage.setItem(
+      SHORTCUT_DATA_BACKUP_KEY,
+      JSON.stringify({
+        savedAt: Date.now(),
+        reason: error instanceof Error ? error.message : String(error),
+        data: rawShortcutData,
+      }),
+    );
+  } catch {
+    // Ignore backup persistence failures and continue with a safe fallback.
+  }
+
+  const fallbackShortcutData = normalizeShortcutData(rawShortcutData, {
+    locale: initialLocale,
+  });
+  console.warn("Shortcut data migration fallback was used.", error);
+  if (JSON.stringify(rawShortcutData) !== JSON.stringify(fallbackShortcutData)) {
+    site.shortcutData = fallbackShortcutData;
+  }
 }
 
 watch(

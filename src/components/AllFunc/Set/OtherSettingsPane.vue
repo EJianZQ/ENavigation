@@ -95,10 +95,17 @@
         </thead>
         <tbody>
           <tr>
+            <td>{{ t("settings.cloudSync.shortcutGroups") }}</td>
+            <td>{{ localShortcutStats.groupCount }}</td>
+            <td :class="{ changed: localShortcutStats.groupCount !== cloudShortcutStats.groupCount }">
+              {{ cloudShortcutStats.groupCount }}
+            </td>
+          </tr>
+          <tr>
             <td>{{ t("settings.cloudSync.shortcuts") }}</td>
-            <td>{{ site.shortcutData?.length || 0 }}</td>
-            <td :class="{ changed: (site.shortcutData?.length || 0) !== (cloudDataCache.shortcutData?.length || 0) }">
-              {{ cloudDataCache.shortcutData?.length || 0 }}
+            <td>{{ localShortcutStats.shortcutCount }}</td>
+            <td :class="{ changed: localShortcutStats.shortcutCount !== cloudShortcutStats.shortcutCount }">
+              {{ cloudShortcutStats.shortcutCount }}
             </td>
           </tr>
           <tr>
@@ -183,6 +190,7 @@ import { storeToRefs } from "pinia";
 import { setStore, siteStore } from "@/stores";
 import { uploadToGist, downloadFromGist } from "@/utils/gistSync";
 import { buildSyncPayload, shouldSkipSyncSetting } from "@/utils/syncData";
+import { getShortcutStats, normalizeShortcutData } from "@/utils/shortcutData";
 
 const set = setStore();
 const site = siteStore();
@@ -195,6 +203,9 @@ const syncConfirmCountdown = ref(5);
 const syncUploading = ref(false);
 const syncDownloading = ref(false);
 let countdownTimer = null;
+
+const localShortcutStats = computed(() => getShortcutStats(site.shortcutData));
+const cloudShortcutStats = computed(() => getShortcutStats(cloudDataCache.value?.shortcutData));
 
 const settingLabelKeys = {
   language: "language.current.title",
@@ -330,7 +341,19 @@ const syncDownload = async () => {
   clearCountdown();
 
   try {
-    cloudDataCache.value = await downloadFromGist(githubToken.value, gistId.value);
+    const downloadedData = await downloadFromGist(githubToken.value, gistId.value);
+    if (Object.prototype.hasOwnProperty.call(downloadedData, "shortcutData")) {
+      const shortcutLocale = downloadedData.settings?.language || set.language;
+      try {
+        downloadedData.shortcutData = normalizeShortcutData(downloadedData.shortcutData, {
+          locale: shortcutLocale,
+          strict: true,
+        });
+      } catch {
+        throw new Error(t("shortcuts.migration.invalidCloudData"));
+      }
+    }
+    cloudDataCache.value = downloadedData;
     countdownTimer = setInterval(() => {
       if (syncConfirmCountdown.value > 0) {
         syncConfirmCountdown.value -= 1;
@@ -352,10 +375,18 @@ const confirmSyncDownload = () => {
   if (!data) return;
 
   try {
-    if (data.todoData) site.todoData = data.todoData;
-    if (data.noteData) site.noteData = data.noteData;
-    if (data.shortcutData) site.shortcutData = data.shortcutData;
-    if (data.searchHistory) site.searchHistory = data.searchHistory;
+    if (Object.prototype.hasOwnProperty.call(data, "todoData")) site.todoData = data.todoData;
+    if (Object.prototype.hasOwnProperty.call(data, "noteData")) site.noteData = data.noteData;
+    if (Object.prototype.hasOwnProperty.call(data, "shortcutData")) {
+      const shortcutLocale = data.settings?.language || set.language;
+      site.shortcutData = normalizeShortcutData(data.shortcutData, {
+        locale: shortcutLocale,
+        strict: true,
+      });
+    }
+    if (Object.prototype.hasOwnProperty.call(data, "searchHistory")) {
+      site.searchHistory = data.searchHistory;
+    }
     if (data.settings) {
       for (const [key, value] of Object.entries(data.settings)) {
         if (!shouldSkipSyncSetting(key) && key in set.$state) {

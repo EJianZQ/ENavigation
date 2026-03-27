@@ -1,3 +1,5 @@
+import { normalizeShortcutData } from "@/utils/shortcutData";
+
 const EXCLUDED_SYNC_SETTING_KEYS = ["githubToken", "gistId", "autoSync", "hasSynced"];
 
 export const shouldSkipSyncSetting = (key) => EXCLUDED_SYNC_SETTING_KEYS.includes(key);
@@ -16,7 +18,9 @@ export const buildSyncPayload = (settingsState = {}, siteState = {}) => {
   return {
     todoData: siteState.todoData,
     noteData: siteState.noteData,
-    shortcutData: siteState.shortcutData,
+    shortcutData: normalizeShortcutData(siteState.shortcutData, {
+      locale: settingsState.language,
+    }),
     searchHistory: siteState.searchHistory,
     settings: buildSyncSettings(settingsState),
   };

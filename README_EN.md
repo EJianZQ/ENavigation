@@ -20,7 +20,7 @@ A minimalist start page / navigation project built with `Vite + Vue 3 + Pinia + 
 
 ## ✨ Features
 - 🔎 Multiple search engines, custom search engine support, switchable suggestion providers, and search history
-- 🔗 Shortcut management with create, edit, delete, sorting, and automatic site icons based on URL
+- 🔗 Shortcut management with grouping, pinned groups, in-group sorting, cross-group drag-and-drop, and automatic site icons based on URL
 - ✅ To-do management
 - 📝 Sticky note / memo management
 - 🖼️ Support for custom wallpapers, [Bing wallpapers](https://api.dujin.org/bing/1920.php), [random landscape wallpapers](https://picsum.photos/1920/1080?random=${Date.now()}), and [random anime wallpapers](https://www.loliapi.com/acg/pc/)
@@ -51,7 +51,7 @@ When a user opens the site for the first time with no local cache, the default c
 
 - `src/stores/setData.js`: Global settings defaults
 - `src/stores/siteData.js`: Business data defaults
-- `src/assets/defaultShortCut.js`: Default shortcuts
+- `src/assets/defaultShortCut.js`: Default shortcuts, with starter groups for `Entertainment / AI / Tools`
 - `src/assets/defaultEngine.js`: Default search engine presets
 
 ### 3. Cloud Sync Configuration
