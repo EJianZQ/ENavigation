@@ -52,6 +52,38 @@ export default {
     autoSyncSuccess: "Auto sync completed",
     autoSyncFailed: "Auto sync failed: {message}",
   },
+  guide: {
+    title: "A quick tour before you start",
+    subtitle: "This is your first time opening ENavigation, so here are the available hotkeys and what each one does",
+    dismiss: "Start using ENavigation",
+    escHint: "You can also press Esc to close this guide",
+    hotkeys: {
+      search: {
+        title: "Quick search",
+        description: "Press Ctrl + K / Cmd + K to open the search box at any time; press it again inside search to leave search mode",
+      },
+      settings: {
+        title: "Open settings",
+        description: "Press Ctrl + , / Cmd + , to open or close the settings panel",
+      },
+      box: {
+        title: "Open the toolbox",
+        description: "Press Ctrl + B / Cmd + B to quickly open or close the panel for shortcuts, notes, and todos",
+      },
+      escape: {
+        title: "Return to home",
+        description: "Esc closes this guide and also exits settings, the function box, or search mode",
+      },
+      enter: {
+        title: "Confirm actions",
+        description: "Press Enter to enter search from the homepage, or confirm the current query inside search suggestions",
+      },
+      navigate: {
+        title: "Navigate suggestions",
+        description: "Use ↑ / ↓ to move through the current search suggestions list",
+      },
+    },
+  },
   allBox: {
     shortcuts: "Shortcuts",
     notes: "Notes",

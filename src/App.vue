@@ -17,6 +17,9 @@
         <DateTime />
         <SearchInp @contextmenu.stop />
         <AllFunc @contextmenu.stop />
+        <Transition name="fade">
+          <FirstVisitGuide v-if="status.showHotkeyGuide" @dismiss="dismissHotkeyGuide" />
+        </Transition>
         <Footer />
         <!-- 设置快捷入口 -->
         <Transition name="fade">
@@ -82,6 +85,7 @@ import Cover from "@/components/Cover.vue";
 import DateTime from "@/components/DateTime.vue";
 import SearchInp from "@/components/SearchInput/SearchInp.vue";
 import AllFunc from "@/components/AllFunc/AllFunc.vue";
+import FirstVisitGuide from "@/components/FirstVisitGuide.vue";
 import Footer from "@/components/Footer.vue";
 
 const set = setStore();
@@ -90,6 +94,19 @@ const site = siteStore();
 const mainClickable = ref(false);
 const { t, locale } = useI18n({ useScope: "global" });
 const greetingSeparator = computed(() => (locale.value === "en-US" ? ", " : "，"));
+
+const showWelcomeMessage = () => {
+  $message.info(`${getGreeting(locale.value)}${greetingSeparator.value}${t("site.welcomeText")}`, {
+    showIcon: false,
+    duration: 3000,
+  });
+};
+
+const dismissHotkeyGuide = () => {
+  status.setHasSeenHotkeyGuide(true);
+  status.setShowHotkeyGuide(false);
+  showWelcomeMessage();
+};
 
 // 自动同步（防抖 3 秒）
 let autoSyncTimer = null;
@@ -116,6 +133,7 @@ watch(syncableData, () => {
 // 鼠标右键
 const mainContextmenu = (event) => {
   event.preventDefault();
+  if (status.showHotkeyGuide) return;
   status.setSiteStatus("box");
 };
 
@@ -123,15 +141,17 @@ const mainContextmenu = (event) => {
 const loadComplete = () => {
   nextTick().then(() => {
     mainClickable.value = true;
-    $message.info(`${getGreeting(locale.value)}${greetingSeparator.value}${t("site.welcomeText")}`, {
-      showIcon: false,
-      duration: 3000,
-    });
+    if (status.hasSeenHotkeyGuide) {
+      showWelcomeMessage();
+      return;
+    }
+    status.setShowHotkeyGuide(true);
   });
 };
 
 // 全局键盘事件
 const mainPressKeyboard = (event) => {
+  if (status.showHotkeyGuide) return;
   const keyCode = event.keyCode;
   // 回车
   if (keyCode === 13) {
@@ -144,6 +164,13 @@ const mainPressKeyboard = (event) => {
 
 // 全局快捷键
 const globalKeyboard = (event) => {
+  if (status.showHotkeyGuide) {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      dismissHotkeyGuide();
+    }
+    return;
+  }
   // Ctrl+K / Cmd+K
   if ((event.ctrlKey || event.metaKey) && event.key === "k") {
     event.preventDefault();
@@ -155,6 +182,11 @@ const globalKeyboard = (event) => {
   if ((event.ctrlKey || event.metaKey) && event.key === ",") {
     event.preventDefault();
     status.setSiteStatus(status.siteStatus === "set" ? "normal" : "set");
+  }
+  // Ctrl+B / Cmd+B — 打开/关闭功能盒子
+  if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "b") {
+    event.preventDefault();
+    status.setSiteStatus(status.siteStatus === "box" ? "normal" : "box");
   }
   // Esc — 退出当前状态
   if (event.key === "Escape") {

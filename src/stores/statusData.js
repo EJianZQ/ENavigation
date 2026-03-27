@@ -14,6 +14,10 @@ const useStatusDataStore = defineStore("statusData", {
       searchInputValue: "",
       // 盒子大小
       mainBoxBig: false,
+      // 首次打开热键引导是否显示
+      showHotkeyGuide: false,
+      // 是否已经看过首次打开热键引导
+      hasSeenHotkeyGuide: false,
       // 夜间自动暗色当前是否生效
       nightModeActive: false,
       // 夜间自动暗色时的临时主题覆盖
@@ -44,6 +48,12 @@ const useStatusDataStore = defineStore("statusData", {
     setMainBoxBig(value) {
       this.mainBoxBig = value;
     },
+    setShowHotkeyGuide(value) {
+      this.showHotkeyGuide = value;
+    },
+    setHasSeenHotkeyGuide(value) {
+      this.hasSeenHotkeyGuide = value;
+    },
     setNightModeActive(value) {
       this.nightModeActive = value;
     },
@@ -58,7 +68,7 @@ const useStatusDataStore = defineStore("statusData", {
   persist: {
     key: "statusData",
     storage: window.localStorage,
-    paths: ["mainBoxBig", "tempThemeOverride", "tempThemeOverrideNightKey"],
+    paths: ["mainBoxBig", "hasSeenHotkeyGuide", "tempThemeOverride", "tempThemeOverrideNightKey"],
   },
 });
 

@@ -52,6 +52,38 @@ export default {
     autoSyncSuccess: "自动同步成功",
     autoSyncFailed: "自动同步失败：{message}",
   },
+  guide: {
+    title: "请先熟悉一下这些操作",
+    subtitle: "这是你第一次打开 ENavigation，下面整理了当前可用的热键和对应功能",
+    dismiss: "开始使用",
+    escHint: "按 Esc 也可以关闭这份引导",
+    hotkeys: {
+      search: {
+        title: "快速搜索",
+        description: "Ctrl + K / Cmd + K 可随时打开搜索框；在搜索框内再次按下也能退出搜索",
+      },
+      settings: {
+        title: "打开设置",
+        description: "Ctrl + , / Cmd + , 可打开或关闭设置面板。点击右下角的小齿轮⚙也可以打开设置面板",
+      },
+      box: {
+        title: "打开功能盒子",
+        description: "Ctrl + B / Cmd + B 可快速打开或关闭捷径、便签和待办所在的功能盒子",
+      },
+      escape: {
+        title: "返回首页",
+        description: "Esc 可关闭当前引导，也能退出设置面板、功能盒子或搜索状态",
+      },
+      enter: {
+        title: "确认操作",
+        description: "Enter 可在首页进入搜索，也可在搜索建议中确认当前内容",
+      },
+      navigate: {
+        title: "联想切换",
+        description: "↑ / ↓ 可在搜索建议列表中上下切换当前高亮项",
+      },
+    },
+  },
   allBox: {
     shortcuts: "捷径",
     notes: "便签",
