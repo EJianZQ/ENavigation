@@ -29,20 +29,29 @@
         </span>
       </Transition>
       <template v-if="set.use12HourFormat">
-        <span class="amPm">{{ timeData.amPm ?? "am" }}</span>
+        <span class="amPm">{{ timeData.amPm ?? "AM" }}</span>
       </template>
     </div>
     <div class="date">
-      <span class="month">{{ timeData.month ?? "0" }}</span>
-      <span class="day">{{ timeData.day ?? "0" }}</span>
-      <span class="weekday">{{ timeData.weekday ?? "星期八" }}</span>
+      <span class="month-day">{{ timeData.dateLabel ?? "1/1" }}</span>
+      <span class="weekday">{{ timeData.weekday ?? "Mon" }}</span>
       <template v-if="set.showLunar && timeData.lunar">
         <span class="lunar-sep">·</span>
-        <span class="lunar">{{ timeData.lunar?.GanZhiYear }}年{{ timeData.lunar?.text }}</span>
+        <span class="lunar">{{ timeData.lunar?.localizedText }}</span>
       </template>
     </div>
-    <div v-if="set.showHitokoto && !set.hitokotoAsPlaceholder" class="hitokoto" @click="refreshHitokoto" title="点击刷新">
-      {{ status.hitokotoText || "加载中..." }}<span v-if="set.showHitokotoSource && status.hitokotoFrom" class="from"> —— {{ status.hitokotoFrom }}</span>
+    <div
+      v-if="set.showHitokoto && !set.hitokotoAsPlaceholder"
+      class="hitokoto"
+      @click="refreshHitokoto"
+      :title="t('dateTime.refreshTitle')"
+    >
+      {{ status.hitokotoText || t("dateTime.hitokotoLoading") }}<span
+        v-if="set.showHitokotoSource && status.hitokotoFrom"
+        class="from"
+      >
+        —— {{ status.hitokotoFrom }}
+      </span>
     </div>
   </div>
 </template>
@@ -50,11 +59,14 @@
 <script setup>
 import { getCurrentTime } from "@/utils/timeTools";
 import { ref, onMounted, onBeforeUnmount, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import { statusStore, setStore } from "@/stores";
 import { getHitokoto } from "@/api";
+import { translate } from "@/i18n";
 
 const set = setStore();
 const status = statusStore();
+const { t, locale } = useI18n({ useScope: "global" });
 
 // 时间数据
 const timeData = ref({});
@@ -62,7 +74,20 @@ const timeInterval = ref(null);
 
 // 更新时间
 const updateTimeData = () => {
-  timeData.value = getCurrentTime(set.showZeroTime, set.use12HourFormat);
+  timeData.value = getCurrentTime(set.showZeroTime, set.use12HourFormat, locale.value);
+};
+
+const syncHitokotoLocale = (nextLocale, previousLocale) => {
+  if (!status.hitokotoText) return;
+
+  const loadingText = translate("dateTime.hitokotoLoading", {}, previousLocale);
+  const fallbackText = translate("dateTime.hitokotoFallback", {}, previousLocale);
+
+  if (status.hitokotoText === loadingText) {
+    status.hitokotoText = translate("dateTime.hitokotoLoading", {}, nextLocale);
+  } else if (status.hitokotoText === fallbackText) {
+    status.hitokotoText = translate("dateTime.hitokotoFallback", {}, nextLocale);
+  }
 };
 
 // 获取一言数据
@@ -75,14 +100,14 @@ const getHitokotoData = async () => {
     status.hitokotoFrom = parts.length ? parts.join(" / ") : "";
   } catch (error) {
     console.error("一言获取失败：", error);
-    status.hitokotoText = "世界上最遥远的距离，是你在电信，我在网通。";
+    status.hitokotoText = t("dateTime.hitokotoFallback");
     status.hitokotoFrom = "";
   }
 };
 
 // 刷新一言
 const refreshHitokoto = () => {
-  status.hitokotoText = "加载中...";
+  status.hitokotoText = t("dateTime.hitokotoLoading");
   status.hitokotoFrom = "";
   getHitokotoData();
 };
@@ -92,6 +117,14 @@ watch(
   () => [set.showZeroTime, set.use12HourFormat],
   () => {
     updateTimeData();
+  },
+);
+
+watch(
+  () => locale.value,
+  (nextLocale, previousLocale) => {
+    updateTimeData();
+    syncHitokotoLocale(nextLocale, previousLocale || nextLocale);
   },
 );
 
@@ -154,17 +187,8 @@ onBeforeUnmount(() => {
     opacity: 0.8;
     margin: 2px 0;
     text-shadow: var(--main-text-shadow);
-    .month {
-      &::after {
-        margin: 0 4px;
-        content: "月";
-      }
-    }
-    .day {
-      &::after {
-        margin: 0 6px 0 4px;
-        content: "日";
-      }
+    .month-day {
+      margin-right: 8px;
     }
     .lunar-sep {
       margin: 0 6px;

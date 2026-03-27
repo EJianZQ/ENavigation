@@ -3,6 +3,8 @@ import { defineStore } from "pinia";
 const useSetDataStore = defineStore("setData", {
   state: () => {
     return {
+      // 语言
+      language: "",
       // 主题类别
       themeType: "light",
       // 壁纸类别
@@ -39,6 +41,8 @@ const useSetDataStore = defineStore("setData", {
       hitokotoAsPlaceholder: false,
       // 一言句子类型
       hitokotoTypes: ["d"],
+      // 页面标题
+      pageTitle: "",
       // 是否显示搜索建议
       showSuggestions: true,
       // 搜索建议来源

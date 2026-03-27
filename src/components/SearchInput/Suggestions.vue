@@ -27,7 +27,7 @@
                 @click.stop="toSearch(keyWord, 2)"
               >
                 <SvgIcon iconName="icon-translation-two" />
-                <span class="text">快捷翻译：{{ keyWord }}</span>
+                <span class="text">{{ t("search.quickTranslation", { keyword: keyWord }) }}</span>
               </div>
               <!-- 直接访问 -->
               <div
@@ -37,7 +37,11 @@
               >
                 <SvgIcon :iconName="`icon-${searchKeywordType === 'email' ? 'email' : 'link'}`" />
                 <span class="text">
-                  {{ searchKeywordType === "email" ? "发送邮件至" : "直接访问" }}：{{ searchKeyword }}
+                  {{
+                    searchKeywordType === "email"
+                      ? t("search.sendEmailTo", { keyword: searchKeyword })
+                      : t("search.directVisit", { keyword: searchKeyword })
+                  }}
                 </span>
               </div>
             </div>
@@ -81,8 +85,8 @@
       >
         <n-scrollbar style="max-height: 45vh">
           <div class="history-header">
-            <span class="label">搜索历史</span>
-            <span class="clear" @click.stop="clearHistory">清除</span>
+            <span class="label">{{ t("search.history") }}</span>
+            <span class="clear" @click.stop="clearHistory">{{ t("search.clearHistory") }}</span>
           </div>
           <div class="all-result">
             <div
@@ -105,6 +109,7 @@
 <script setup>
 import { NScrollbar } from "naive-ui";
 import { nextTick, ref, watch, computed } from "vue";
+import { useI18n } from "vue-i18n";
 import { statusStore, setStore, siteStore } from "@/stores";
 import { getSearchSuggestions } from "@/api";
 import debounce from "@/utils/debounce";
@@ -114,15 +119,16 @@ const set = setStore();
 const status = statusStore();
 const site = siteStore();
 const emit = defineEmits(["toSearch"]);
+const { t } = useI18n({ useScope: "global" });
 
 // 搜索历史
 const searchHistoryData = computed(() => site.searchHistory || []);
 const clearHistory = () => {
   $dialog.warning({
-    title: "清除搜索历史",
-    content: "确认清除全部搜索历史？",
-    positiveText: "清除",
-    negativeText: "取消",
+    title: t("search.clearHistoryTitle"),
+    content: t("search.clearHistoryContent"),
+    positiveText: t("common.clear"),
+    negativeText: t("common.cancel"),
     onPositiveClick: () => {
       site.searchHistory = [];
     },
@@ -219,7 +225,7 @@ const keyboardEvents = (keyCode, event) => {
       toSearch(mainInput.value, 1);
     }
   } catch (error) {
-    $message.error("出现问题，请尝试重置程序");
+    $message.error(t("search.keyboardError"));
     console.error("键盘事件出现错误：" + error);
   }
 };

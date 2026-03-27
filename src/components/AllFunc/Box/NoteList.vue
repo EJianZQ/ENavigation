@@ -9,7 +9,7 @@
           <n-input
             v-model:value="searchQuery"
             clearable
-            placeholder="搜索便签..."
+            :placeholder="t('notes.searchPlaceholder')"
             size="small"
           >
             <template #prefix>
@@ -29,7 +29,7 @@
             <!-- 新建按钮 -->
             <n-grid-item v-if="!searchQuery" class="note__card add" @click="openEditor()">
               <SvgIcon iconName="icon-add" />
-              <span class="label">新建便签</span>
+              <span class="label">{{ t("notes.addLabel") }}</span>
             </n-grid-item>
             <!-- 便签卡片 -->
             <n-grid-item
@@ -40,49 +40,49 @@
               @contextmenu="noteContextmenu($event, item)"
             >
               <div class="card-header">
-                <span class="title" v-html="highlightText(item.title || '无标题')"></span>
+                <span class="title" v-html="highlightText(item.title || t('notes.untitled'))"></span>
                 <SvgIcon v-if="item.pinned" iconName="icon-confirm" class="pin-icon" />
               </div>
-              <p class="content" v-html="highlightText(snippetText(item.content || '暂无内容'))"></p>
+              <p class="content" v-html="highlightText(snippetText(item.content || t('notes.noContent')))"></p>
               <span class="time">{{ formatTime(item.updatedAt) }}</span>
             </n-grid-item>
           </n-grid>
           <!-- 搜索无结果 -->
           <div v-else class="note__no-result">
-            <span>没有匹配的便签</span>
+            <span>{{ t("notes.noResult") }}</span>
           </div>
         </n-scrollbar>
       </div>
       <!-- 空状态 -->
       <div v-else class="note__empty">
-        <span class="tip">暂无便签</span>
+        <span class="tip">{{ t("notes.empty") }}</span>
         <n-button strong secondary @click="openEditor()">
           <template #icon>
             <SvgIcon iconName="icon-add" />
           </template>
-          新建便签
+          {{ t("notes.create") }}
         </n-button>
       </div>
     </Transition>
     <!-- 编辑弹窗 -->
     <n-modal
       preset="card"
-      :title="isEditing ? '编辑便签' : '新建便签'"
+      :title="isEditing ? t('notes.editTitle') : t('notes.createTitle')"
       v-model:show="editorShow"
       :bordered="false"
       @mask-click="saveAndClose"
     >
       <n-form :label-width="80">
-        <n-form-item label="标题">
+        <n-form-item :label="t('notes.titleLabel')">
           <n-input
             clearable
             show-count
             maxlength="30"
             v-model:value="editorData.title"
-            placeholder="输入标题（可选）"
+            :placeholder="t('notes.titlePlaceholder')"
           />
         </n-form-item>
-        <n-form-item label="内容">
+        <n-form-item :label="t('notes.contentLabel')">
           <n-input
             type="textarea"
             clearable
@@ -90,7 +90,7 @@
             maxlength="2000"
             :rows="8"
             v-model:value="editorData.content"
-            placeholder="写点什么..."
+            :placeholder="t('notes.contentPlaceholder')"
           />
         </n-form-item>
       </n-form>
@@ -102,15 +102,15 @@
             secondary
             @click="togglePin"
           >
-            {{ editorData.pinned ? "取消置顶" : "置顶" }}
+            {{ editorData.pinned ? t("notes.unpin") : t("notes.pin") }}
           </n-button>
           <span v-else />
           <n-space>
             <n-button v-if="isEditing" strong secondary @click="deleteNote">
-              删除
+              {{ t("common.delete") }}
             </n-button>
             <n-button strong secondary @click="saveAndClose">
-              保存
+              {{ t("notes.save") }}
             </n-button>
           </n-space>
         </n-space>
@@ -133,6 +133,7 @@
 
 <script setup>
 import { ref, computed, h, nextTick } from "vue";
+import { useI18n } from "vue-i18n";
 import {
   NScrollbar,
   NGrid,
@@ -151,6 +152,7 @@ import SvgIcon from "@/components/SvgIcon.vue";
 
 const site = siteStore();
 const { noteData } = storeToRefs(site);
+const { t, locale } = useI18n({ useScope: "global" });
 
 // 搜索
 const searchQuery = ref("");
@@ -214,18 +216,24 @@ const ctxTarget = ref(null);
 // 图标渲染
 const renderIcon = (icon) => () => h(SvgIcon, { iconName: `icon-${icon}` });
 
-const ctxOptions = [
-  { label: "编辑", key: "edit", icon: renderIcon("edit") },
-  { label: "置顶/取消", key: "pin", icon: renderIcon("confirm") },
-  { label: "删除", key: "delete", icon: renderIcon("delete-1") },
-];
+const ctxOptions = computed(() => [
+  { label: t("notes.context.edit"), key: "edit", icon: renderIcon("edit") },
+  { label: t("notes.context.pinToggle"), key: "pin", icon: renderIcon("confirm") },
+  { label: t("notes.context.delete"), key: "delete", icon: renderIcon("delete-1") },
+]);
 
 // 格式化时间
 const formatTime = (ts) => {
   if (!ts) return "";
   const d = new Date(ts);
-  const pad = (n) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  return new Intl.DateTimeFormat(locale.value, {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(d);
 };
 
 // 打开编辑器
@@ -278,10 +286,12 @@ const togglePin = () => {
 // 删除便签
 const deleteNote = () => {
   $dialog.warning({
-    title: "删除便签",
-    content: `确认删除"${editorData.value.title || "无标题"}"？`,
-    positiveText: "删除",
-    negativeText: "取消",
+    title: t("notes.deleteDialogTitle"),
+    content: t("notes.deleteDialogContent", {
+      name: editorData.value.title || t("notes.untitled"),
+    }),
+    positiveText: t("common.delete"),
+    negativeText: t("common.cancel"),
     onPositiveClick: () => {
       const index = noteData.value.findIndex((n) => n.id === editorData.value.id);
       if (index !== -1) noteData.value.splice(index, 1);

@@ -1,8 +1,8 @@
 <template>
   <!-- 全局配置组件 -->
   <n-config-provider
-    :locale="zhCN"
-    :date-locale="dateZhCN"
+    :locale="naiveLocale"
+    :date-locale="naiveDateLocale"
     :theme="darkTheme"
     :theme-overrides="themeOverrides"
     abstract
@@ -18,10 +18,15 @@
 </template>
 
 <script setup>
-import { defineComponent, h } from "vue";
+import { computed, defineComponent, h } from "vue";
+import { useI18n } from "vue-i18n";
 import {
   zhCN,
+  zhTW,
+  enUS,
   dateZhCN,
+  dateZhTW,
+  dateEnUS,
   darkTheme,
   NConfigProvider,
   NDialogProvider,
@@ -29,6 +34,8 @@ import {
   useDialog,
   useMessage,
 } from "naive-ui";
+
+const { locale } = useI18n({ useScope: "global" });
 
 // 全局主题
 const themeOverrides = {
@@ -40,6 +47,21 @@ const themeOverrides = {
     primaryColorPressed: "#ffffff30",
   },
 };
+
+const naiveLocaleMap = {
+  "zh-CN": zhCN,
+  "zh-TW": zhTW,
+  "en-US": enUS,
+};
+
+const naiveDateLocaleMap = {
+  "zh-CN": dateZhCN,
+  "zh-TW": dateZhTW,
+  "en-US": dateEnUS,
+};
+
+const naiveLocale = computed(() => naiveLocaleMap[locale.value] || zhCN);
+const naiveDateLocale = computed(() => naiveDateLocaleMap[locale.value] || dateZhCN);
 
 // 挂载 Naive 组件
 const setupNaiveTools = () => {

@@ -23,7 +23,7 @@
           <div
             v-show="status.siteStatus === 'normal' || status.siteStatus === 'focus'"
             class="settings-shortcut"
-            title="设置 (Ctrl+,)"
+            :title="t('app.settingsShortcut')"
             @click.stop="status.setSiteStatus('set')"
           >
             <SvgIcon iconName="icon-setting" />
@@ -37,7 +37,7 @@
           >
             <div
               class="change-status"
-              :title="status.mainBoxBig ? '收起' : '展开'"
+              :title="status.mainBoxBig ? t('common.collapse') : t('common.expand')"
               @click.stop="status.setMainBoxBig(!status.mainBoxBig)"
             >
               <Transition name="fade" mode="out-in">
@@ -49,7 +49,7 @@
             </div>
             <div
               class="change-status"
-              :title="status.siteStatus !== 'set' ? '设置' : '首页'"
+              :title="status.siteStatus !== 'set' ? t('common.settings') : t('common.home')"
               @click.stop="status.setSiteStatus(status.siteStatus !== 'set' ? 'set' : 'normal')"
             >
               <Transition name="fade" mode="out-in">
@@ -64,7 +64,7 @@
       </main>
       <div v-else id="loading">
         <img src="/icon/logo.png" alt="logo" class="logo" />
-        <span class="tip">加载中...</span>
+        <span class="tip">{{ t("site.loading") }}</span>
       </div>
     </Transition>
   </Provider>
@@ -72,6 +72,7 @@
 
 <script setup>
 import { onMounted, onBeforeUnmount, nextTick, watch, ref, computed } from "vue";
+import { useI18n } from "vue-i18n";
 import { statusStore, setStore, siteStore } from "@/stores";
 import { getGreeting, getNightModeDateKey } from "@/utils/timeTools";
 import { uploadToGist } from "@/utils/gistSync";
@@ -87,6 +88,8 @@ const set = setStore();
 const status = statusStore();
 const site = siteStore();
 const mainClickable = ref(false);
+const { t, locale } = useI18n({ useScope: "global" });
+const greetingSeparator = computed(() => (locale.value === "en-US" ? ", " : "，"));
 
 // 自动同步（防抖 3 秒）
 let autoSyncTimer = null;
@@ -102,16 +105,13 @@ watch(syncableData, () => {
     try {
       const data = JSON.parse(syncableData.value);
       await uploadToGist(set.githubToken, set.gistId, data);
-      $message.success("自动同步成功", { duration: 1500 });
+      $message.success(t("app.autoSyncSuccess"), { duration: 1500 });
     } catch (error) {
       console.error("自动同步失败：", error);
-      $message.error(`自动同步失败：${error.message}`);
+      $message.error(t("app.autoSyncFailed", { message: error.message }));
     }
   }, 3000);
 });
-
-// 获取配置
-const welcomeText = import.meta.env.VITE_WELCOME_TEXT ?? "欢迎访问本站";
 
 // 鼠标右键
 const mainContextmenu = (event) => {
@@ -123,7 +123,7 @@ const mainContextmenu = (event) => {
 const loadComplete = () => {
   nextTick().then(() => {
     mainClickable.value = true;
-    $message.info(getGreeting() + "，" + welcomeText, {
+    $message.info(`${getGreeting(locale.value)}${greetingSeparator.value}${t("site.welcomeText")}`, {
       showIcon: false,
       duration: 3000,
     });

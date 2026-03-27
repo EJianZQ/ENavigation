@@ -18,6 +18,7 @@
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from "vue";
+import { useI18n } from "vue-i18n";
 import { statusStore, setStore } from "@/stores";
 
 const set = setStore();
@@ -25,6 +26,7 @@ const status = statusStore();
 const bgUrl = ref(null);
 const imgTimeout = ref(null);
 const emit = defineEmits(["loadComplete"]);
+const { t } = useI18n({ useScope: "global" });
 
 // 壁纸随机数
 // 请依据文件夹内的图片个数修改 Math.random() 后面的第一个数字
@@ -76,7 +78,7 @@ const imgAnimationEnd = () => {
 // 图片显示失败
 const imgLoadError = () => {
   console.error("壁纸加载失败：", bgUrl.value);
-  $message.error("壁纸加载失败，已临时切换回默认");
+  $message.error(t("settings.wallpaper.loadFailed"));
   bgUrl.value = `/background/bg${bgRandom}.jpg`;
 };
 

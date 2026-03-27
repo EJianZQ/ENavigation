@@ -26,7 +26,7 @@
                 <img
                   v-if="getShortcutIconSrc(item.url)"
                   :src="getShortcutIconSrc(item.url)"
-                  :alt="`${item.name} 图标`"
+                  :alt="t('shortcuts.iconAlt', { name: item.name })"
                   loading="lazy"
                   @error="handleShortcutIconError(item.url)"
                 />
@@ -44,18 +44,18 @@
               @click="addShortcutModalOpen"
             >
               <SvgIcon iconName="icon-add" />
-              <span class="name">添加捷径</span>
+              <span class="name">{{ t("shortcuts.add") }}</span>
             </n-grid-item>
           </n-grid>
         </n-scrollbar>
       </div>
       <div v-else class="not-shortcut">
-        <span class="tip">暂无捷径，去添加吧</span>
+        <span class="tip">{{ t("shortcuts.empty") }}</span>
         <n-button strong secondary @click="addShortcutModalOpen">
           <template #icon>
             <SvgIcon iconName="icon-add" />
           </template>
-          添加捷径
+          {{ t("shortcuts.add") }}
         </n-button>
       </div>
     </Transition>
@@ -64,7 +64,7 @@
   <n-modal
     preset="card"
     v-model:show="addShortcutModalShow"
-    :title="`${addShortcutModalType ? '编辑' : '添加'}捷径`"
+    :title="addShortcutModalType ? t('shortcuts.editTitle') : t('shortcuts.addTitle')"
     :bordered="false"
     @mask-click="addShortcutClose"
   >
@@ -74,33 +74,37 @@
       :model="addShortcutValue"
       :label-width="80"
     >
-      <n-form-item label="ID" path="id">
+      <n-form-item :label="t('shortcuts.idLabel')" path="id">
         <n-input-number
           disabled
-          placeholder="请输入ID"
+          :placeholder="t('shortcuts.idPlaceholder')"
           v-model:value="addShortcutValue.id"
           style="width: 100%"
           :show-button="false"
         />
       </n-form-item>
-      <n-form-item label="捷径名称" path="name">
+      <n-form-item :label="t('shortcuts.nameLabel')" path="name">
         <n-input
           clearable
           show-count
           maxlength="14"
           v-model:value="addShortcutValue.name"
-          placeholder="请输入捷径名称"
+          :placeholder="t('shortcuts.namePlaceholder')"
         />
       </n-form-item>
-      <n-form-item label="站点链接" path="url">
-        <n-input clearable v-model:value="addShortcutValue.url" placeholder="请输入站点链接" />
+      <n-form-item :label="t('shortcuts.urlLabel')" path="url">
+        <n-input
+          clearable
+          v-model:value="addShortcutValue.url"
+          :placeholder="t('shortcuts.urlPlaceholder')"
+        />
       </n-form-item>
     </n-form>
     <template #footer>
       <n-space justify="end">
-        <n-button strong secondary @click="addShortcutClose"> 取消 </n-button>
+        <n-button strong secondary @click="addShortcutClose"> {{ t("common.cancel") }} </n-button>
         <n-button strong secondary @click="addOrEditShortcuts">
-          {{ addShortcutModalType ? "编辑" : "添加" }}
+          {{ addShortcutModalType ? t("common.edit") : t("common.add") }}
         </n-button>
       </n-space>
     </template>
@@ -124,7 +128,8 @@
 </template>
 
 <script setup>
-import { ref, nextTick, h } from "vue";
+import { ref, nextTick, h, computed } from "vue";
+import { useI18n } from "vue-i18n";
 import {
   NButton,
   NScrollbar,
@@ -147,6 +152,7 @@ const set = setStore();
 const site = siteStore();
 const { shortcutData } = storeToRefs(site);
 const shortcutIconIndexMap = ref({});
+const { t } = useI18n({ useScope: "global" });
 
 // 拖拽状态
 const dragIndex = ref(null);
@@ -231,48 +237,57 @@ const addShortcutValue = ref({
   name: "",
   url: "",
 });
-const addShortcutRules = {
+const addShortcutRules = computed(() => ({
   id: {
     required: true,
-    type: "number",
-    message: "请输入合法 ID",
+    validator(rule, value) {
+      if (typeof value !== "number") {
+        return new Error(t("shortcuts.validation.idRequired"));
+      }
+      return true;
+    },
     trigger: ["input", "blur"],
   },
   name: {
     required: true,
-    message: "请输入名称",
+    validator(rule, value) {
+      if (!value) {
+        return new Error(t("shortcuts.validation.nameRequired"));
+      }
+      return true;
+    },
     trigger: ["input", "blur"],
   },
   url: {
     required: true,
     validator(rule, value) {
       if (!value) {
-        return new Error("请输入站点链接");
+        return new Error(t("shortcuts.validation.urlRequired"));
       } else if (identifyInput(value) !== "url") {
-        return new Error("请检查是否为正确的网址");
+        return new Error(t("shortcuts.validation.urlInvalid"));
       }
       return true;
     },
     trigger: ["input", "blur"],
   },
-};
+}));
 
 // 右键菜单数据
 const shortCutDropdownX = ref(0);
 const shortCutDropdownY = ref(0);
 const shortCutDropdownShow = ref(false);
-const shortCutDropdownOptions = [
+const shortCutDropdownOptions = computed(() => [
   {
-    label: "编辑",
+    label: t("shortcuts.context.edit"),
     key: "edit",
     icon: renderIcon("edit"),
   },
   {
-    label: "删除",
+    label: t("shortcuts.context.delete"),
     key: "delete",
     icon: renderIcon("delete-1"),
   },
-];
+]);
 
 // 关闭弹窗
 const addShortcutClose = () => {
@@ -304,7 +319,7 @@ const addShortcutModalOpen = () => {
 const addOrEditShortcuts = () => {
   addShortcutRef.value?.validate((errors) => {
     if (errors) {
-      $message.error("请检查您的输入");
+      $message.error(t("shortcuts.checkInput"));
       return false;
     }
     // 新增捷径
@@ -315,7 +330,7 @@ const addOrEditShortcuts = () => {
           item.name === addShortcutValue.value.name || item.url === addShortcutValue.value.url,
       );
       if (isDuplicate) {
-        $message.error("新增名称或链接与已有捷径重复");
+        $message.error(t("shortcuts.duplicate"));
         return false;
       }
       shortcutData.value.push({
@@ -323,19 +338,19 @@ const addOrEditShortcuts = () => {
         name: addShortcutValue.value.name,
         url: addShortcutValue.value.url,
       });
-      $message.success("捷径添加成功");
+      $message.success(t("shortcuts.addSuccess"));
       addShortcutClose();
       return true;
     } else {
       // 编辑捷径
       const index = shortcutData.value.findIndex((item) => item.id === addShortcutValue.value.id);
       if (index === -1) {
-        $message.error("捷径中不存在该项，请重试");
+        $message.error(t("shortcuts.notFound"));
         return false;
       }
       shortcutData.value[index].name = addShortcutValue.value.name;
       shortcutData.value[index].url = addShortcutValue.value.url;
-      $message.success("捷径编辑成功");
+      $message.success(t("shortcuts.editSuccess"));
       addShortcutClose();
       return true;
     }
@@ -353,12 +368,12 @@ const delShortcuts = () => {
       for (let i = indexToRemove; i < shortcutData.value.length; i++) {
         shortcutData.value[i].id = i;
       }
-      $message.success("捷径删除成功");
+      $message.success(t("shortcuts.deleteSuccess"));
       return true;
     }
-    $message.error("捷径删除失败，请重试");
+    $message.error(t("shortcuts.deleteFailed"));
   } else {
-    $message.error("捷径删除失败，请重试");
+    $message.error(t("shortcuts.deleteFailed"));
   }
 };
 
@@ -386,10 +401,10 @@ const shortCutDropdownSelect = (key) => {
       break;
     case "delete":
       $dialog.warning({
-        title: "删除捷径",
-        content: `确认删除 ${addShortcutValue.value.name} 捷径？此操作将无法恢复！`,
-        positiveText: "删除",
-        negativeText: "取消",
+        title: t("shortcuts.deleteDialogTitle"),
+        content: t("shortcuts.deleteDialogContent", { name: addShortcutValue.value.name }),
+        positiveText: t("common.delete"),
+        negativeText: t("common.cancel"),
         onPositiveClick: () => {
           delShortcuts();
         },
@@ -410,8 +425,6 @@ const shortCutJump = (url) => {
     window.open(urlFormat, "_blank");
   }
 };
-
-
 
 </script>
 

@@ -21,7 +21,7 @@
     />
     <!-- 主搜索框 -->
     <div class="all" ref="searchAllRef" @animationend="inputAnimationEnd">
-      <div class="engine" title="切换搜索引擎" @click="changeEngine">
+      <div class="engine" :title="t('search.switchEngineTitle')" @click="changeEngine">
         <Transition name="fade" mode="out-in">
           <SvgIcon
             :iconName="`icon-${
@@ -37,7 +37,7 @@
         ref="searchInputRef"
         type="text"
         label="search"
-        title="请输入搜索内容"
+        :title="t('search.inputTitle')"
         autocomplete="off"
         :style="{ fontSize: inputTipFontSize }"
         :placeholder="inputTip"
@@ -46,7 +46,7 @@
         @click.stop="status.setEngineChangeStatus(false)"
         @keydown.stop="pressKeyboard"
       />
-      <div class="go" title="搜索" @click="toSearch(status.searchInputValue)">
+      <div class="go" :title="t('search.searchTitle')" @click="toSearch(status.searchInputValue)">
         <SvgIcon iconName="icon-search" className="search" />
       </div>
     </div>
@@ -58,36 +58,34 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import { statusStore, setStore, siteStore } from "@/stores";
 import SearchEngine from "@/components/SearchInput/SearchEngine.vue";
 import Suggestions from "@/components/SearchInput/Suggestions.vue";
-import defaultEngine from "@/assets/defaultEngine.json";
+import defaultEngine from "@/assets/defaultEngine";
 
 const set = setStore();
 const status = statusStore();
 const site = siteStore();
+const { t, tm, locale } = useI18n({ useScope: "global" });
 
-// 搜索框多语言占位文字（加权随机）
-const placeholders = [
-  { text: "从这里发现世界", weight: 50 },
-  { text: "從這裡發現世界", weight: 25 },
-  { text: "From here, access the world", weight: 20 },
-  { text: "ここから、世界へアクセス", weight: 10 },
-  { text: "여기서, 세상을 만나다", weight: 4 },
-  { text: "D'ici, accéder au monde", weight: 3 },
-  { text: "Von hier aus die Welt erreichen", weight: 2 },
-];
-const pickPlaceholder = () => {
-  const total = placeholders.reduce((s, p) => s + p.weight, 0);
-  let r = Math.random() * total;
-  for (const p of placeholders) {
-    r -= p.weight;
-    if (r <= 0) return p.text;
-  }
-  return placeholders[0].text;
+const defaultPlaceholder = ref("");
+
+const getPlaceholderPool = () => {
+  const pool = tm("search.placeholderPool");
+  return Array.isArray(pool) ? pool.filter(Boolean) : [];
 };
-const defaultPlaceholder = pickPlaceholder();
+
+const updateDefaultPlaceholder = () => {
+  const placeholders = getPlaceholderPool();
+  if (!placeholders.length) {
+    defaultPlaceholder.value = "";
+    return;
+  }
+  const randomIndex = Math.floor(Math.random() * placeholders.length);
+  defaultPlaceholder.value = placeholders[randomIndex];
+};
 
 const inputTip = computed(() => {
   if (set.showHitokoto && set.hitokotoAsPlaceholder && status.hitokotoText) {
@@ -96,7 +94,7 @@ const inputTip = computed(() => {
     }
     return status.hitokotoText;
   }
-  return defaultPlaceholder;
+  return defaultPlaceholder.value;
 });
 
 // 根据内容长度动态调整字体大小
@@ -191,7 +189,7 @@ const toSearch = (val, type = 1) => {
     closeSearchInput(true);
   } else {
     if (status.siteStatus === "focus") {
-      $message.info("请输入搜索内容", { duration: 1500 });
+      $message.info(t("search.inputEmpty"), { duration: 1500 });
     }
     status.setSiteStatus("focus");
     searchInputRef.value?.focus();
@@ -229,6 +227,12 @@ const changeEngine = () => {
   status.setSiteStatus("focus", false);
   status.setEngineChangeStatus(!status.engineChangeStatus);
 };
+
+watch(
+  () => locale.value,
+  () => updateDefaultPlaceholder(),
+  { immediate: true },
+);
 </script>
 
 <style lang="scss" scoped>

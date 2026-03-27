@@ -4,31 +4,31 @@
       <n-scrollbar style="max-height: 44.5vh">
         <n-grid class="all-engine" responsive="screen" cols="2 s:3 m:4 l:4" :x-gap="10" :y-gap="10">
           <n-grid-item
-            v-for="(item, key) in defaultEngine"
-            :key="key"
-            :class="['engine', key === set.searchEngine ? 'choose' : null]"
-            @click="changeSearchEngine(key)"
+            v-for="item in engineOptions"
+            :key="item.key"
+            :class="['engine', item.key === set.searchEngine ? 'choose' : null]"
+            @click="changeSearchEngine(item.key)"
           >
-            <SvgIcon :iconName="`icon-${key}`" />
-            <span class="name">{{ item.name }}</span>
+            <SvgIcon :iconName="`icon-${item.key}`" />
+            <span class="name">{{ item.label }}</span>
           </n-grid-item>
           <n-grid-item
             :class="['engine', set.searchEngine === 'custom' ? 'choose' : null]"
             @click="customEngineClick"
           >
             <SvgIcon iconName="icon-custom" />
-            <span class="name">自定义</span>
+            <span class="name">{{ t("search.engines.custom") }}</span>
           </n-grid-item>
           <n-grid-item class="engine" @click="customEngineModal = true">
             <SvgIcon iconName="icon-custom" />
-            <span class="name">自定义配置</span>
+            <span class="name">{{ t("search.engines.customConfig") }}</span>
           </n-grid-item>
         </n-grid>
       </n-scrollbar>
       <!-- 自定义搜索引擎 -->
       <n-modal
         preset="card"
-        title="自定义搜索引擎"
+        :title="t('search.customEngine.modalTitle')"
         v-model:show="customEngineModal"
         :bordered="false"
       >
@@ -38,16 +38,19 @@
           :model="customEngineValue"
           :label-width="80"
         >
-          <n-form-item label="搜索引擎地址" path="url">
+          <n-form-item :label="t('search.customEngine.urlLabel')" path="url">
             <n-input
               clearable
               v-model:value="customEngineValue.url"
-              placeholder="例如：https://www.google.com/search?q="
+              :placeholder="t('search.customEngine.urlPlaceholder')"
             />
           </n-form-item>
           <div class="custom-engine-tip">
-            <p>请填写搜索引擎的完整地址，搜索关键词会自动拼接在地址末尾。</p>
-            <p>例如：<code>https://www.google.com/search?q=</code></p>
+            <p>{{ t("search.customEngine.hint") }}</p>
+            <p>
+              {{ t("search.customEngine.exampleLabel") }}
+              <code>https://www.google.com/search?q=</code>
+            </p>
           </div>
         </n-form>
         <template #footer>
@@ -58,12 +61,16 @@
               secondary
               @click="resetCustomEngine"
             >
-              重置
+              {{ t("common.reset") }}
             </n-button>
             <span v-else />
             <n-space>
-              <n-button strong secondary @click="customEngineModal = false"> 取消 </n-button>
-              <n-button strong secondary @click="setCustomEngine"> 确认 </n-button>
+              <n-button strong secondary @click="customEngineModal = false">
+                {{ t("common.cancel") }}
+              </n-button>
+              <n-button strong secondary @click="setCustomEngine">
+                {{ t("common.confirm") }}
+              </n-button>
             </n-space>
           </n-space>
         </template>
@@ -73,7 +80,8 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { computed, ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import {
   NSpace,
   NButton,
@@ -86,10 +94,18 @@ import {
   NInput,
 } from "naive-ui";
 import { statusStore, setStore } from "@/stores";
-import defaultEngine from "@/assets/defaultEngine.json";
+import defaultEngine from "@/assets/defaultEngine";
 
 const set = setStore();
 const status = statusStore();
+const { t } = useI18n({ useScope: "global" });
+
+const engineOptions = computed(() =>
+  Object.entries(defaultEngine).map(([key, item]) => ({
+    key,
+    label: t(item.nameKey),
+  })),
+);
 
 // 自定义搜索引擎数据
 const customEngineRef = ref(null);
@@ -102,15 +118,34 @@ const customEngineRules = {
     required: true,
     validator(rule, value) {
       if (!value) {
-        return new Error("请输入自定义搜索引擎地址");
+        return new Error(t("search.customEngine.urlRequired"));
       } else if (!/^https:\/\/[a-zA-Z0-9\-.]+\.[a-zA-Z]{2,}(\/\S*)?$/.test(value)) {
-        return new Error("请检查是否为网址且是否为 https:// 开头");
+        return new Error(t("search.customEngine.urlInvalid"));
       }
       return true;
     },
     trigger: ["input", "blur"],
   },
 };
+
+watch(
+  () => set.customEngineUrl,
+  (value) => {
+    if (!customEngineModal.value) {
+      customEngineValue.value.url = value || "";
+    }
+  },
+  { immediate: true },
+);
+
+watch(
+  customEngineModal,
+  (visible) => {
+    if (visible) {
+      customEngineValue.value.url = set.customEngineUrl || "";
+    }
+  },
+);
 
 // 更换搜索引擎
 const changeSearchEngine = (key) => {
@@ -127,7 +162,7 @@ const customEngineClick = () => {
   if (set.customEngineUrl) {
     changeSearchEngine("custom");
   } else {
-    $message.info("无自定义数据，请配置");
+    $message.info(t("search.customEngine.noData"));
     customEngineModal.value = true;
   }
 };
@@ -138,9 +173,9 @@ const setCustomEngine = () => {
     if (!errors) {
       set.setSearchEngine(customEngineValue.value.url, true);
       customEngineModal.value = false;
-      $message.success("已启用自定义搜索引擎");
+      $message.success(t("search.customEngine.enabled"));
     } else {
-      $message.error("请检查您的输入");
+      $message.error(t("search.customEngine.invalid"));
     }
   });
 };
@@ -151,7 +186,7 @@ const resetCustomEngine = () => {
   customEngineValue.value.url = "";
   set.setSearchEngine("google");
   customEngineModal.value = false;
-  $message.success("已重置，已切换回 Google");
+  $message.success(t("search.customEngine.resetSuccess"));
 };
 </script>
 

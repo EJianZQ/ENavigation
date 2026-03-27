@@ -6,11 +6,11 @@
       <input
         class="input"
         type="text"
-        placeholder="添加新的待办事项..."
+        :placeholder="t('todos.inputPlaceholder')"
         v-model="newTodoText"
         @keydown.enter.stop="addTodo"
       />
-      <div class="add-btn" title="添加" @click="addTodo">
+      <div class="add-btn" :title="t('todos.addTitle')" @click="addTodo">
         <SvgIcon iconName="icon-add" />
       </div>
     </div>
@@ -38,7 +38,7 @@
                 <span class="text">{{ item.text }}</span>
               </div>
               <div class="right">
-                <div class="action" title="删除" @click="deleteTodo(item.id)">
+                <div class="action" :title="t('todos.deleteTitle')" @click="deleteTodo(item.id)">
                   <SvgIcon iconName="icon-delete-1" />
                 </div>
               </div>
@@ -47,21 +47,24 @@
         </n-scrollbar>
       </div>
       <div v-else class="todo__empty">
-        <span class="tip">暂无待办事项</span>
+        <span class="tip">{{ t("todos.empty") }}</span>
       </div>
     </Transition>
     <!-- 底部统计 -->
     <div v-if="todoData.length" class="todo__footer">
       <span class="count">
-        {{ doneCount }} / {{ todoData.length }} 已完成
+        {{ t("todos.completedCount", { done: doneCount, total: todoData.length }) }}
       </span>
-      <div v-if="doneCount > 0" class="clear" @click="clearDone">清除已完成</div>
+      <div v-if="doneCount > 0" class="clear" @click="clearDone">
+        {{ t("todos.clearDone") }}
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref, computed } from "vue";
+import { useI18n } from "vue-i18n";
 import { NScrollbar } from "naive-ui";
 import { storeToRefs } from "pinia";
 import { siteStore } from "@/stores";
@@ -69,6 +72,7 @@ import SvgIcon from "@/components/SvgIcon.vue";
 
 const site = siteStore();
 const { todoData } = storeToRefs(site);
+const { t } = useI18n({ useScope: "global" });
 
 // 新待办输入
 const newTodoText = ref("");
@@ -86,7 +90,7 @@ const doneCount = computed(() => {
 const addTodo = () => {
   const text = newTodoText.value.trim();
   if (!text) {
-    $message.info("请输入待办内容", { duration: 1500 });
+    $message.info(t("todos.inputRequired"), { duration: 1500 });
     return;
   }
   const maxId = todoData.value.reduce((max, item) => Math.max(max, item.id), -1);
@@ -117,10 +121,10 @@ const deleteTodo = (id) => {
 // 清除已完成
 const clearDone = () => {
   $dialog.warning({
-    title: "清除已完成",
-    content: "确认清除所有已完成的待办事项？",
-    positiveText: "清除",
-    negativeText: "取消",
+    title: t("todos.clearDoneTitle"),
+    content: t("todos.clearDoneContent"),
+    positiveText: t("common.clear"),
+    negativeText: t("common.cancel"),
     onPositiveClick: () => {
       todoData.value = todoData.value.filter((item) => !item.done);
     },

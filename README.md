@@ -27,6 +27,7 @@
 - 🖼️ 自定义壁纸、[必应壁纸](https://api.dujin.org/bing/1920.php)、[随机风景壁纸](https://picsum.photos/1920/1080?random=${Date.now()})与[随机二次元壁纸](https://www.loliapi.com/acg/pc/)切换
 - 🕒 时间、日期、农历的个性化显示
 - 💬 定制化一言
+- 🌐 全站 i18n 国际化，支持简体中文 / 繁體中文 / English 即时切换
 - 🌙 夜间自动暗色模式
 - 💾 本地数据持久化
 - ☁️ GitHub Gist 云同步
@@ -51,8 +52,8 @@
 
 - `src/stores/setData.js`：全站设置默认值
 - `src/stores/siteData.js`：业务数据默认值
-- `src/assets/defaultShortCut.json`：默认快捷方式
-- `src/assets/defaultEngine.json`：默认搜索引擎预设
+- `src/assets/defaultShortCut.js`：默认快捷方式
+- `src/assets/defaultEngine.js`：默认搜索引擎预设
 
 ### 3. 云同步配置
 

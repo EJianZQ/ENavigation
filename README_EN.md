@@ -26,6 +26,7 @@ A minimalist start page / navigation project built with `Vite + Vue 3 + Pinia + 
 - 🖼️ Support for custom wallpapers, [Bing wallpapers](https://api.dujin.org/bing/1920.php), [random landscape wallpapers](https://picsum.photos/1920/1080?random=${Date.now()}), and [random anime wallpapers](https://www.loliapi.com/acg/pc/)
 - 🕒 Personalized time, date, and lunar calendar display
 - 💬 Customizable Hitokoto quote display
+- 🌐 Full-site i18n support with instant switching between Simplified Chinese, Traditional Chinese, and English
 - 🌙 Automatic night dark mode
 - 💾 Local data persistence
 - ☁️ GitHub Gist cloud sync
@@ -50,8 +51,8 @@ When a user opens the site for the first time with no local cache, the default c
 
 - `src/stores/setData.js`: Global settings defaults
 - `src/stores/siteData.js`: Business data defaults
-- `src/assets/defaultShortCut.json`: Default shortcuts
-- `src/assets/defaultEngine.json`: Default search engine presets
+- `src/assets/defaultShortCut.js`: Default shortcuts
+- `src/assets/defaultEngine.js`: Default search engine presets
 
 ### 3. Cloud Sync Configuration
 
