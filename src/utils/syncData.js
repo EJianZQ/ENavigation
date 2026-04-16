@@ -1,4 +1,5 @@
 import { normalizeShortcutData } from "@/utils/shortcutData";
+import { normalizeTodoData } from "@/utils/todoData";
 
 const EXCLUDED_SYNC_SETTING_KEYS = ["githubToken", "gistId", "autoSync", "hasSynced"];
 
@@ -16,7 +17,7 @@ export const buildSyncSettings = (settingsState = {}) => {
 
 export const buildSyncPayload = (settingsState = {}, siteState = {}) => {
   return {
-    todoData: siteState.todoData,
+    todoData: normalizeTodoData(siteState.todoData),
     noteData: siteState.noteData,
     shortcutData: normalizeShortcutData(siteState.shortcutData, {
       locale: settingsState.language,

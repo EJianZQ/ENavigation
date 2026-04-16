@@ -481,6 +481,11 @@ export default {
   todos: {
     inputPlaceholder: "新增待辦事項...",
     addTitle: "新增",
+    deadlineTitle: "截止日期",
+    deadlineDisplay: "截止：{date}",
+    deadlineToday: "今天截止",
+    deadlineOverdue: "已逾期：{date}",
+    noDeadline: "未設定截止日期",
     empty: "暫無待辦事項",
     completedCount: "{done} / {total} 已完成",
     clearDone: "清除已完成",
@@ -488,6 +493,7 @@ export default {
     clearDoneTitle: "清除已完成",
     clearDoneContent: "確認清除所有已完成的待辦事項？",
     deleteTitle: "刪除",
+    invalidCloudData: "雲端待辦資料格式無效，已阻止覆蓋本地資料",
   },
   notes: {
     searchPlaceholder: "搜尋便籤...",

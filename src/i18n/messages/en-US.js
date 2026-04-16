@@ -490,6 +490,11 @@ export default {
   todos: {
     inputPlaceholder: "Add a new todo...",
     addTitle: "Add",
+    deadlineTitle: "Due date",
+    deadlineDisplay: "Due: {date}",
+    deadlineToday: "Due today",
+    deadlineOverdue: "Overdue: {date}",
+    noDeadline: "No due date",
     empty: "No todos yet",
     completedCount: "{done} / {total} completed",
     clearDone: "Clear completed",
@@ -497,6 +502,7 @@ export default {
     clearDoneTitle: "Clear completed",
     clearDoneContent: "Clear all completed todo items?",
     deleteTitle: "Delete",
+    invalidCloudData: "Cloud todo data is invalid, so local data was not overwritten",
   },
   notes: {
     searchPlaceholder: "Search notes...",

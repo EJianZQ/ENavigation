@@ -11,6 +11,13 @@
         v-model="newTodoText"
         @keydown.enter.stop="addTodo"
       />
+      <input
+        class="date-input"
+        type="date"
+        :title="t('todos.deadlineTitle')"
+        v-model="newTodoDeadline"
+        @keydown.stop
+      />
       <div class="add-btn" :title="t('todos.addTitle')" @click="addTodo">
         <SvgIcon iconName="icon-add" />
       </div>
@@ -36,7 +43,17 @@
             >
               <div class="left" @click="toggleTodo(item.id)">
                 <SvgIcon :iconName="item.done ? 'icon-confirm' : 'icon-packup'" />
-                <span class="text">{{ item.text }}</span>
+                <div class="content">
+                  <span class="text">{{ item.text }}</span>
+                  <span
+                    :class="[
+                      'deadline',
+                      getTodoDeadlineStateClass(item),
+                    ]"
+                  >
+                    {{ getTodoDeadlineText(item) }}
+                  </span>
+                </div>
               </div>
               <div class="right">
                 <div class="action" :title="t('todos.deleteTitle')" @click="deleteTodo(item.id)">
@@ -70,13 +87,15 @@ import { NScrollbar } from "naive-ui";
 import { storeToRefs } from "pinia";
 import { siteStore } from "@/stores";
 import SvgIcon from "@/components/SvgIcon.vue";
+import { formatTodoDeadline, getTodoDeadlineState } from "@/utils/todoData";
 
 const site = siteStore();
 const { todoData } = storeToRefs(site);
-const { t } = useI18n({ useScope: "global" });
+const { t, locale } = useI18n({ useScope: "global" });
 
 // 新待办输入
 const newTodoText = ref("");
+const newTodoDeadline = ref("");
 const todoInputRef = ref(null);
 
 // 拖拽状态
@@ -100,8 +119,10 @@ const addTodo = () => {
     id: maxId + 1,
     text,
     done: false,
+    deadline: newTodoDeadline.value || "",
   });
   newTodoText.value = "";
+  newTodoDeadline.value = "";
 };
 
 defineExpose({
@@ -125,6 +146,31 @@ const toggleTodo = (id) => {
 const deleteTodo = (id) => {
   const index = todoData.value.findIndex((t) => t.id === id);
   if (index !== -1) todoData.value.splice(index, 1);
+};
+
+const getTodoDeadlineText = (item) => {
+  if (!item.deadline) {
+    return t("todos.noDeadline");
+  }
+
+  const formattedDate = formatTodoDeadline(item.deadline, locale.value);
+  if (item.done) {
+    return t("todos.deadlineDisplay", { date: formattedDate });
+  }
+
+  const deadlineState = getTodoDeadlineState(item.deadline);
+  if (deadlineState === "overdue") {
+    return t("todos.deadlineOverdue", { date: formattedDate });
+  }
+  if (deadlineState === "today") {
+    return t("todos.deadlineToday", { date: formattedDate });
+  }
+  return t("todos.deadlineDisplay", { date: formattedDate });
+};
+
+const getTodoDeadlineStateClass = (item) => {
+  if (item.done) return "is-done";
+  return `is-${getTodoDeadlineState(item.deadline)}`;
 };
 
 // 清除已完成
@@ -197,6 +243,25 @@ const onDragEnd = () => {
         background-color: var(--main-background-hover-color);
       }
     }
+    .date-input {
+      width: 148px;
+      height: 38px;
+      padding: 0 12px;
+      border: none;
+      outline: none;
+      border-radius: 8px;
+      font-size: 13px;
+      color: var(--main-text-color);
+      background-color: var(--main-background-light-color);
+      transition: background-color 0.3s;
+      &::-webkit-calendar-picker-indicator {
+        cursor: pointer;
+        opacity: 0.7;
+      }
+      &:focus {
+        background-color: var(--main-background-hover-color);
+      }
+    }
     .add-btn {
       cursor: pointer;
       display: flex;
@@ -244,12 +309,42 @@ const onDragEnd = () => {
             min-width: 16px;
             opacity: 0.6;
           }
+          .content {
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+          }
           .text {
             font-size: 14px;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
             transition: opacity 0.3s;
+          }
+          .deadline {
+            font-size: 12px;
+            line-height: 1.2;
+            opacity: 0.7;
+            transition: opacity 0.3s, color 0.3s;
+
+            &.is-overdue {
+              color: #ff7a7a;
+              opacity: 0.95;
+            }
+
+            &.is-today {
+              color: #ffbe6b;
+              opacity: 0.92;
+            }
+
+            &.is-done {
+              opacity: 0.5;
+            }
+
+            &.is-none {
+              opacity: 0.45;
+            }
           }
         }
         .right {
@@ -287,6 +382,9 @@ const onDragEnd = () => {
           .left .text {
             text-decoration: line-through;
             opacity: 0.6;
+          }
+          .left .deadline {
+            opacity: 0.45;
           }
         }
         &:last-child {

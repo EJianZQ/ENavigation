@@ -191,6 +191,7 @@ import { setStore, siteStore } from "@/stores";
 import { uploadToGist, downloadFromGist } from "@/utils/gistSync";
 import { buildSyncPayload, shouldSkipSyncSetting } from "@/utils/syncData";
 import { getShortcutStats, normalizeShortcutData } from "@/utils/shortcutData";
+import { normalizeTodoData } from "@/utils/todoData";
 
 const set = setStore();
 const site = siteStore();
@@ -342,6 +343,15 @@ const syncDownload = async () => {
 
   try {
     const downloadedData = await downloadFromGist(githubToken.value, gistId.value);
+    if (Object.prototype.hasOwnProperty.call(downloadedData, "todoData")) {
+      try {
+        downloadedData.todoData = normalizeTodoData(downloadedData.todoData, {
+          strict: true,
+        });
+      } catch {
+        throw new Error(t("todos.invalidCloudData"));
+      }
+    }
     if (Object.prototype.hasOwnProperty.call(downloadedData, "shortcutData")) {
       const shortcutLocale = downloadedData.settings?.language || set.language;
       try {
@@ -375,7 +385,11 @@ const confirmSyncDownload = () => {
   if (!data) return;
 
   try {
-    if (Object.prototype.hasOwnProperty.call(data, "todoData")) site.todoData = data.todoData;
+    if (Object.prototype.hasOwnProperty.call(data, "todoData")) {
+      site.todoData = normalizeTodoData(data.todoData, {
+        strict: true,
+      });
+    }
     if (Object.prototype.hasOwnProperty.call(data, "noteData")) site.noteData = data.noteData;
     if (Object.prototype.hasOwnProperty.call(data, "shortcutData")) {
       const shortcutLocale = data.settings?.language || set.language;

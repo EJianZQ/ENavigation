@@ -7,12 +7,14 @@ import SvgIcon from "@/components/SvgIcon.vue";
 import { i18n, normalizeLocale, resolveInitialLocale, setAppLocale } from "@/i18n";
 import { setStore, siteStore } from "@/stores";
 import { normalizeShortcutData } from "@/utils/shortcutData";
+import { normalizeTodoData } from "@/utils/todoData";
 // 主组件
 import App from "@/App.vue";
 // 全局样式
 import "@/style/global.scss";
 
 const SHORTCUT_DATA_BACKUP_KEY = "shortcutDataBackup";
+const TODO_DATA_BACKUP_KEY = "todoDataBackup";
 
 // 根组件
 const app = createApp(App);
@@ -32,6 +34,7 @@ if (settings.language !== initialLocale) {
 
 const site = siteStore(pinia);
 const rawShortcutData = site.shortcutData;
+const rawTodoData = site.todoData;
 
 try {
   const normalizedShortcutData = normalizeShortcutData(rawShortcutData, {
@@ -61,6 +64,34 @@ try {
   console.warn("Shortcut data migration fallback was used.", error);
   if (JSON.stringify(rawShortcutData) !== JSON.stringify(fallbackShortcutData)) {
     site.shortcutData = fallbackShortcutData;
+  }
+}
+
+try {
+  const normalizedTodoData = normalizeTodoData(rawTodoData, {
+    strict: true,
+  });
+  if (JSON.stringify(rawTodoData) !== JSON.stringify(normalizedTodoData)) {
+    site.todoData = normalizedTodoData;
+  }
+} catch (error) {
+  try {
+    window.localStorage.setItem(
+      TODO_DATA_BACKUP_KEY,
+      JSON.stringify({
+        savedAt: Date.now(),
+        reason: error instanceof Error ? error.message : String(error),
+        data: rawTodoData,
+      }),
+    );
+  } catch {
+    // Ignore backup persistence failures and continue with a safe fallback.
+  }
+
+  const fallbackTodoData = normalizeTodoData(rawTodoData);
+  console.warn("Todo data migration fallback was used.", error);
+  if (JSON.stringify(rawTodoData) !== JSON.stringify(fallbackTodoData)) {
+    site.todoData = fallbackTodoData;
   }
 }
 
